@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0D12">
+<title>수능 실전 타이머</title>
+<meta name="description" content="2027학년도 수능 시간표 그대로 입실부터 5교시까지 실전처럼 연습하는 무료 타이머. 교시별 종소리, 지금부터 리허설, 실제 시각 따라가기.">
+<link rel="canonical" href="https://tcc15k2.github.io/StudyPactHome/suneung/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:site_name" content="열공모드">
+<meta property="og:title" content="수능 실전 타이머 · 열공모드">
+<meta property="og:description" content="수능 날 시간표 그대로, 입실부터 5교시까지 종소리와 함께 실전처럼 연습해요.">
+<meta property="og:url" content="https://tcc15k2.github.io/StudyPactHome/suneung/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  /* Layout: 한 화면 도구. 왼쪽(모바일은 위)에 큰 남은 시간, 오른쪽(아래)에 하루 시간표. 밤 책상의 단일 다크 테마 */
+  color-scheme:dark;
+  --bg:#0B0D12; --panel:#12161F; --card:#181D27; --line:#272E3B;
+  --tx:#EEEAE1; --sub:#9CA3B1; --dim:#666D7D;
+  --lamp:#FFB547; --on-lamp:#1C1406; --lamp-soft:rgba(255,181,71,.14); --lamp-line:rgba(255,181,71,.4);
+  --warn:#F4A77E; --blue:#9CC4FF;
+  --f-disp:'Hahmlet','Nanum Myeongjo',serif;
+  --f-body:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{background-color:var(--bg);background-image:radial-gradient(70% 40% at 25% -5%,rgba(255,181,71,.12),transparent 70%);background-repeat:no-repeat;color:var(--tx);font:400 16px/1.6 var(--f-body);word-break:keep-all;overflow-wrap:break-word}
+[hidden]{display:none!important}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:16px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--tx)}
+.brand svg{width:38px;height:30px;flex:none}
+.brand b{display:block;font:700 1.1rem/1.1 var(--f-disp)}
+.brand small{display:block;font-size:.8rem;color:var(--sub);line-height:1.3}
+.dday{font:600 .9rem/1 var(--f-mono);color:var(--lamp);border:1px solid var(--lamp-line);border-radius:99px;padding:7px 12px;white-space:nowrap}
+
+.app{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px;padding-block:6px 40px;align-items:start}
+@media (max-width:900px){.app{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:clamp(18px,3vw,28px);min-width:0}
+h1{font:700 clamp(1.55rem,4.2vw,2.25rem)/1.32 var(--f-disp);margin:0 0 8px;text-wrap:balance}
+.lede{color:var(--sub);margin:0 0 22px;max-width:34em}
+
+fieldset{border:0;margin:0 0 18px;padding:0;min-width:0}
+fieldset:disabled{opacity:.45}
+legend{font:600 .8rem/1.4 var(--f-body);color:var(--sub);margin-bottom:8px;padding:0}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.seg label{cursor:pointer;padding:8px 13px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:.9rem;line-height:1.35;transition:background .15s,border-color .15s,color .15s}
+.seg input:checked + label{background:var(--lamp-soft);border-color:var(--lamp);color:var(--lamp);font-weight:600}
+.seg input:focus-visible + label{outline:2px solid var(--lamp);outline-offset:2px}
+.seg input:disabled + label{cursor:not-allowed}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media (max-width:520px){.row2{grid-template-columns:1fr}}
+.chk{display:flex;align-items:center;gap:10px;font-size:.92rem;cursor:pointer;margin-bottom:6px}
+.chk input{width:18px;height:18px;accent-color:var(--lamp);margin:0}
+.vol{display:flex;align-items:center;gap:10px}
+.vol input[type=range]{flex:1;min-width:0;accent-color:var(--lamp)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;font:700 1rem/1.2 var(--f-body);cursor:pointer;padding:0 18px;min-height:46px;text-decoration:none;text-align:center}
+.btn.primary{background:var(--lamp);color:var(--on-lamp);width:100%;min-height:56px;font-size:1.05rem}
+.btn.primary:disabled{background:var(--card);color:var(--dim);cursor:not-allowed}
+.btn.ghost{background:var(--card);color:var(--tx);border:1px solid var(--line)}
+.btn.small{min-height:36px;font-size:.85rem;padding:0 12px;border-radius:10px;flex:none}
+.btn:focus-visible{outline:2px solid var(--lamp);outline-offset:3px}
+.preview{font-size:.86rem;color:var(--sub);margin:10px 0 0;text-align:center}
+
+.toast{margin:0 0 14px;padding:10px 14px;border-radius:12px;background:var(--lamp-soft);border:1px solid var(--lamp-line);color:var(--lamp);font-weight:600}
+.now-k{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.88rem;color:var(--sub)}
+.kind{font:600 .72rem/1 var(--f-mono);padding:5px 8px;border-radius:6px;background:var(--card);color:var(--sub)}
+.kind.exam{background:var(--lamp-soft);color:var(--lamp)}
+.seg-name{font:700 clamp(1.45rem,4.5vw,2.1rem)/1.25 var(--f-body);margin:10px 0 2px}
+.range{font:500 .92rem/1.45 var(--f-mono);color:var(--sub)}
+.count{font:500 clamp(4rem,16vw,7.6rem)/1 var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:18px 0 6px}
+.count.warn{color:var(--warn)}
+.count.rest{color:var(--sub)}
+.pbar{height:6px;border-radius:6px;background:var(--card);overflow:hidden;margin:16px 0 14px}
+.pbar i{display:block;height:100%;width:0;background:var(--lamp);border-radius:6px;transition:width .3s linear}
+.next{font-size:.92rem;color:var(--sub)}
+.next b{color:var(--tx);font-weight:600}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.hint{font-size:.84rem;color:var(--dim);margin:14px 0 0}
+
+.sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.sum div{background:var(--card);border-radius:14px;padding:12px}
+.sum b{display:block;font:500 1.5rem/1.2 var(--f-mono)}
+.sum span{font-size:.8rem;color:var(--sub)}
+
+.tl h2{font:700 1rem/1.4 var(--f-body);margin:0 0 12px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 10px}
+.tl h2 span{font:500 .8rem/1.4 var(--f-mono);color:var(--dim)}
+.tl ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.tl li{display:grid;grid-template-columns:3.4em minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:8px 10px;border-radius:10px;font-size:.9rem;line-height:1.4}
+.tl li .t{font:500 .85rem/1.4 var(--f-mono);color:var(--sub)}
+.tl li .d{font:500 .78rem/1.4 var(--f-mono);color:var(--dim)}
+.tl li.exam b{font-weight:600}
+.tl li.brk b,.tl li.adm b{font-weight:400;color:var(--sub)}
+.tl li small{display:block;font-size:.76rem;color:var(--dim)}
+.tl li.done{opacity:.4}
+.tl li.now{background:var(--lamp-soft)}
+.tl li.now b{color:var(--lamp)}
+.tl .src{font-size:.78rem;color:var(--dim);margin:14px 0 0}
+
+.cta{border-top:1px solid var(--line);padding-block:40px}
+.cta-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px;align-items:center}
+@media (max-width:820px){.cta-grid{grid-template-columns:1fr}.cta-art{order:-1}}
+.cta h2{font:700 clamp(1.4rem,3.4vw,1.9rem)/1.35 var(--f-disp);margin:0 0 14px;text-wrap:balance}
+.cta ul{list-style:none;padding:0;margin:0 0 20px;display:grid;gap:8px;color:var(--sub)}
+.cta li{display:flex;gap:10px}
+.cta li::before{content:"";flex:none;width:8px;height:10px;margin-top:.5em;border-radius:2px;background:#FFD27A;box-shadow:0 0 8px rgba(255,210,122,.6)}
+.cta .btn.primary{max-width:360px}
+.cta .note{font-size:.84rem;color:var(--dim);margin:10px 0 0}
+.cta-art{display:grid;place-items:center}
+.cta-art svg{width:min(100%,240px);height:auto;filter:drop-shadow(0 0 40px rgba(255,181,71,.22))}
+
+footer{border-top:1px solid var(--line);padding-block:24px 44px;font-size:.8rem;color:var(--dim)}
+footer p{margin:0 0 6px;max-width:62em}
+footer a{color:var(--sub)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="g-cone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD27A" stop-opacity=".75"/><stop offset="1" stop-color="#FFD27A" stop-opacity="0"/></linearGradient>
+    <linearGradient id="g-brass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8A6A2E"/><stop offset=".5" stop-color="#D9B46A"/><stop offset="1" stop-color="#8A6A2E"/></linearGradient>
+    <linearGradient id="g-shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3C8763"/><stop offset="1" stop-color="#1F4D39"/></linearGradient>
+  </defs>
+  <symbol id="lamp" viewBox="0 0 160 124">
+    <polygon points="34,52 126,52 160,124 0,124" fill="url(#g-cone)"/>
+    <path d="M50 124 h60 q6 0 6 -5 q0 -3 -4 -3 h-64 q-4 0 -4 3 q0 5 6 5z" fill="url(#g-brass)"/>
+    <rect x="77" y="48" width="6" height="70" rx="2" fill="url(#g-brass)"/>
+    <path d="M28 54 Q28 24 80 24 Q132 24 132 54 Z" fill="url(#g-shade)"/>
+    <rect x="34" y="51" width="92" height="5" rx="2.5" fill="#FFE7AE"/>
+    <line x1="114" y1="56" x2="114" y2="76" stroke="#C9A55E" stroke-width="1.6" stroke-dasharray="1.5 2.2"/>
+    <circle cx="114" cy="79" r="3.2" fill="#C9A55E"/>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><svg viewBox="0 0 160 124" aria-hidden="true"><use href="#lamp"/></svg><div><b>열공모드</b><small>수능 실전 타이머</small></div></div>
+    <span class="dday" id="dday">수능 11.19</span>
+  </div>
+</header>
+
+<main class="wrap app">
+  <section class="panel" aria-labelledby="stageTitle">
+    <div id="setup">
+      <h1 id="stageTitle">수능 날 시간표 그대로, 오늘 연습해요</h1>
+      <p class="lede">입실부터 5교시까지 실제 시험 시간과 쉬는 시간을 따라가고, 교시마다 종이 울려요. 시험장의 하루 리듬에 몸을 맞추는 연습이에요.</p>
+      <form id="form" novalidate>
+        <fieldset>
+          <legend>방식</legend>
+          <div class="seg">
+            <input type="radio" name="mode" id="m-re" value="rehearse" checked><label for="m-re">지금부터 리허설</label>
+            <input type="radio" name="mode" id="m-ck" value="clock"><label for="m-ck">실제 시각 따라가기</label>
+          </div>
+        </fieldset>
+        <fieldset id="fsPeriod">
+          <legend>시작 교시</legend>
+          <div class="seg">
+            <input type="radio" name="period" id="per-1" value="1" checked><label for="per-1">1교시 국어</label>
+            <input type="radio" name="period" id="per-2" value="2"><label for="per-2">2교시 수학</label>
+            <input type="radio" name="period" id="per-3" value="3"><label for="per-3">3교시 영어</label>
+            <input type="radio" name="period" id="per-4" value="4"><label for="per-4">4교시 한국사·탐구</label>
+            <input type="radio" name="period" id="per-5" value="5"><label for="per-5">5교시 제2외국어·한문</label>
+          </div>
+        </fieldset>
+        <fieldset id="fsRange">
+          <legend>범위</legend>
+          <div class="seg">
+            <input type="radio" name="range" id="r-one" value="one" checked><label for="r-one">이 교시만</label>
+            <input type="radio" name="range" id="r-day" value="day"><label for="r-day">하루 끝까지</label>
+          </div>
+        </fieldset>
+        <div class="row2">
+          <fieldset>
+            <legend>탐구</legend>
+            <div class="seg">
+              <input type="radio" name="tamgu" id="t-2" value="2" checked><label for="t-2">2과목</label>
+              <input type="radio" name="tamgu" id="t-1" value="1"><label for="t-1">1과목</label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>5교시</legend>
+            <label class="chk"><input type="checkbox" id="p5">제2외국어·한문 응시</label>
+          </fieldset>
+        </div>
+        <div class="row2">
+          <fieldset>
+            <legend>종소리 크기</legend>
+            <div class="vol"><input type="range" id="vol" min="0" max="100" value="70" aria-label="종소리 크기"><button type="button" class="btn ghost small" id="testBell">미리 듣기</button></div>
+          </fieldset>
+          <fieldset>
+            <legend>그 밖</legend>
+            <label class="chk"><input type="checkbox" id="wake" checked>화면 켜 두기</label>
+            <label class="chk"><input type="checkbox" id="vib" checked>진동(지원하는 기기)</label>
+          </fieldset>
+        </div>
+        <button type="submit" class="btn primary" id="startBtn">5분 뒤 1교시 국어 시작</button>
+        <p class="preview" id="preview"></p>
+      </form>
+    </div>
+
+    <div id="running" hidden>
+      <div class="toast" id="toast" role="status" aria-live="assertive" hidden></div>
+      <div class="now-k"><span class="kind" id="kind">시험</span><span id="virt"></span></div>
+      <div class="seg-name" id="segName"></div>
+      <div class="range" id="range"></div>
+      <div class="count" id="count" role="timer" aria-label="남은 시간"></div>
+      <div class="pbar"><i id="pbar"></i></div>
+      <div class="next" id="next"></div>
+      <div class="ctrl">
+        <button class="btn ghost" id="pauseBtn" type="button">잠깐 멈춤</button>
+        <button class="btn ghost" id="soundBtn" type="button" hidden>종소리 다시 켜기</button>
+        <button class="btn ghost" id="stopBtn" type="button">그만하기</button>
+      </div>
+      <p class="hint">화면을 켜 둔 채로 두세요. 화면이 꺼지거나 다른 탭으로 가면 종이 늦게 울릴 수 있어요.</p>
+    </div>
+
+    <div id="done" hidden>
+      <h1>오늘 리허설 끝</h1>
+      <p class="lede" id="doneLede"></p>
+      <div class="sum">
+        <div><b id="sumP">0</b><span>교시</span></div>
+        <div><b id="sumM">0</b><span>시험 시간(분)</span></div>
+        <div><b id="sumT">--:--</b><span>시작한 시각</span></div>
+      </div>
+      <p class="hint">이 화면을 캡처해서 공유해도 좋아요. #열공모드 #수능실전</p>
+      <div class="ctrl"><button class="btn ghost" id="againBtn" type="button">다시 설정하기</button></div>
+    </div>
+  </section>
+
+  <aside class="panel tl" aria-labelledby="tlTitle">
+    <h2 id="tlTitle">수능 시간표 <span>2027학년도 · 11월 19일(목)</span></h2>
+    <ol id="tl"></ol>
+    <p class="src">입실 완료 08:10. 2~5교시는 시작 10분 전까지 입실해요.</p>
+  </aside>
+</main>
+
+<section class="cta">
+  <div class="wrap cta-grid">
+    <div>
+      <h2>실전 연습은 하루, 공부는 매일이에요</h2>
+      <ul>
+        <li>오늘 할 공부를 과목별로 약속하고, 지켰는지 정직하게 보여 줘요</li>
+        <li>스탠드 줄을 당기면 폰이 열공모드가 돼요. 알림이 조용해져요</li>
+        <li>같은 시간 공부하는 사람들이 창문으로 보여요. 순위는 없어요</li>
+        <li>광고도 구독도 없어요</li>
+      </ul>
+      <a class="btn primary" id="prereg" href="#">열공모드 출시 알림 받기</a>
+      <p class="note" id="preregNote">안드로이드 앱 · 2027년 1월 출시 예정</p>
+    </div>
+    <div class="cta-art"><svg viewBox="0 0 160 124" role="img" aria-label="불이 켜진 초록 갓 스탠드"><use href="#lamp"/></svg></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>시간은 한국교육과정평가원 수능 누리집의 <a href="https://www.suneung.re.kr/sub/info.do?m=0101&amp;s=suneung" target="_blank" rel="noopener">시험 시간표</a>(2026-10-15 확인)를 따랐어요. 시험 당일 유의사항과 정확한 시각은 평가원 공지를 따르세요.</p>
+    <p>종소리는 열공모드가 만든 차임이에요. 실제 시험장 타종과 소리와 시점이 다를 수 있어요. 영어 듣기 음원은 들어 있지 않아요.</p>
+    <p>설정과 진행 상황은 서버로 보내지 않고 이 브라우저에만 저장해요.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var EXAM = new Date(2026, 10, 19);          // 2027학년도 수능
+  var PREREG_URL = '';                         // Play 사전예약 링크가 생기면 여기에 넣는다
+  var KEY = 'ym-suneung-v1';
+  var PERIOD = {1:'1교시 국어', 2:'2교시 수학', 3:'3교시 영어', 4:'4교시 한국사·탐구', 5:'5교시 제2외국어·한문'};
+  var KIND = {exam:'시험', brk:'쉬는 시간', entry:'입실', adm:'회수·배부', wait:'대기', pre:'준비'};
+  // 분 단위(자정 기준). 평가원 수능 누리집 시험 시간표(2026-10-15 대조). 2~5교시는 시작 10분 전 입실이라
+  // 휴식과 입실 완료 구간을 나눈다. 입실 구간의 p는 앞 교시에 붙여 '이 교시만'에서 꼬리로 잘리게 한다
+  var SEGS = [
+    {id:'p1',  label:'1교시 국어', kind:'exam', s:520, e:600, p:1},
+    {id:'b1',  label:'휴식', kind:'brk', s:600, e:620, p:1, note:'10:20까지 입실'},
+    {id:'e2',  label:'입실 완료 · 2교시 준비', kind:'entry', s:620, e:630, p:1},
+    {id:'p2',  label:'2교시 수학', kind:'exam', s:630, e:730, p:2},
+    {id:'l1',  label:'점심', kind:'brk', s:730, e:780, p:2, note:'13:00까지 입실'},
+    {id:'e3',  label:'입실 완료 · 3교시 준비', kind:'entry', s:780, e:790, p:2},
+    {id:'p3',  label:'3교시 영어', kind:'exam', s:790, e:860, p:3, note:'듣기 평가 포함(음원 없음)'},
+    {id:'b3',  label:'휴식', kind:'brk', s:860, e:880, p:3, note:'14:40까지 입실'},
+    {id:'e4',  label:'입실 완료 · 4교시 준비', kind:'entry', s:880, e:890, p:3},
+    {id:'p4h', label:'4교시 한국사', kind:'exam', s:890, e:920, p:4},
+    {id:'p4x', label:'문·답지 회수와 배부', kind:'adm', s:920, e:935, p:4},
+    {id:'p4a', label:'4교시 탐구 첫 과목', kind:'exam', s:935, e:965, p:4},
+    {id:'p4y', label:'문제지 회수', kind:'adm', s:965, e:967, p:4},
+    {id:'p4b', label:'4교시 탐구 둘째 과목', kind:'exam', s:967, e:997, p:4},
+    {id:'b4',  label:'휴식', kind:'brk', s:997, e:1015, p:4, note:'16:55까지 입실'},
+    {id:'e5',  label:'입실 완료 · 5교시 준비', kind:'entry', s:1015, e:1025, p:4},
+    {id:'p5',  label:'5교시 제2외국어·한문', kind:'exam', s:1025, e:1065, p:5}
+  ];
+
+  function $(id){ return document.getElementById(id); }
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function hm(m){ var x = Math.floor(m + 1e-6); x = ((x % 1440) + 1440) % 1440; return pad(Math.floor(x / 60)) + ':' + pad(x % 60); }
+  function fmt(sec){
+    sec = Math.max(0, Math.ceil(sec));
+    var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    return h ? h + ':' + pad(m) + ':' + pad(s) : pad(m) + ':' + pad(s);
+  }
+  function nowMin(){ var d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60 + d.getMilliseconds() / 60000; }
+  function copy(o){ return JSON.parse(JSON.stringify(o)); }
+
+  /* ── 저장 ── */
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function store(){ try { localStorage.setItem(KEY, JSON.stringify({cfg: cfg, run: run})); } catch (e) {} }
+
+  var saved = load();
+  var cfg = Object.assign({mode:'rehearse', period:1, range:'one', tamgu:2, p5:false, vol:70, wake:true, vib:true}, saved.cfg || {});
+  var run = null, plan = null, timer = null, lastIdx = null, stopArm = 0, toastTimer = 0;
+
+  /* ── 계획 ── */
+  function buildPlan(c){
+    var segs = SEGS.map(function(s){
+      var o = copy(s);
+      if (c.tamgu === 1) {
+        if (s.id === 'p4a') { o.kind = 'wait'; o.label = '대기 · 탐구 1과목 선택자'; }
+        if (s.id === 'p4b') { o.label = '4교시 탐구'; }
+      }
+      return o;
+    });
+    if (!c.p5) segs = segs.filter(function(s){ return s.p !== 5 && s.id !== 'b4' && s.id !== 'e5'; });
+    var startV = null;
+    if (c.mode === 'clock') {
+      segs.unshift({id:'pre', label:'입실 완료 · 1교시 준비', kind:'entry', s:490, e:520, p:1, note:'08:10까지 입실'});
+    } else {
+      var i0 = -1, i1 = -1;
+      segs.forEach(function(s, i){ if (s.p === c.period) { if (i0 < 0) i0 = i; i1 = i; } });
+      if (c.range === 'day') i1 = segs.length - 1;
+      segs = segs.slice(i0, i1 + 1);
+      while (segs.length > 1 && /^(brk|entry)$/.test(segs[segs.length - 1].kind)) segs.pop();
+      startV = segs[0].s - 5;
+    }
+    var ev = [], seen = {};
+    segs.forEach(function(s){
+      if (s.kind !== 'exam') return;
+      if (!seen[s.p]) { seen[s.p] = 1; ev.push({t: s.s - 5, type: 'prep', text: s.label + ' 시작 5분 전'}); }
+      ev.push({t: s.s, type: 'start', text: s.label + ' 시작'});
+      if (s.e - s.s >= 40) ev.push({t: s.e - 10, type: 'warn', text: s.label + ' 종료 10분 전'});
+      ev.push({t: s.e, type: 'end', text: s.label + ' 종료'});
+    });
+    ev.sort(function(a, b){ return a.t - b.t; });
+    var exam = 0, periods = {};
+    segs.forEach(function(s){ if (s.kind === 'exam') { exam += s.e - s.s; periods[s.p] = 1; } });
+    return {segs: segs, ev: ev, startV: startV, endV: segs[segs.length - 1].e, examMin: exam, periods: Object.keys(periods).length};
+  }
+
+  function vNow(){
+    if (run.mode === 'clock') return nowMin();
+    var t = run.pausedAt || Date.now();
+    return run.anchorVirt + (t - run.anchorReal - run.pausedTotal) / 60000;
+  }
+  function locate(v){
+    var f = plan.segs[0];
+    if (v < f.s) return {st: 'pre', seg: f, i: -1};
+    for (var i = 0; i < plan.segs.length; i++) {
+      var s = plan.segs[i];
+      if (v >= s.s && v < s.e) return {st: 'in', seg: s, i: i};
+    }
+    return {st: 'done', i: plan.segs.length};
+  }
+
+  /* ── 종소리 ── */
+  var actx = null, master = null;
+  function ensureAudio(){
+    try {
+      if (!actx) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return Promise.resolve();
+        actx = new AC(); master = actx.createGain(); master.connect(actx.destination);
+      }
+      if (actx.state === 'suspended') return actx.resume().catch(function(){});
+    } catch (e) {}
+    return Promise.resolve();
+  }
+  function bell(t, f){
+    var g = actx.createGain(), o1 = actx.createOscillator(), o2 = actx.createOscillator(), g2 = actx.createGain();
+    o1.type = 'sine'; o1.frequency.value = f;
+    o2.type = 'sine'; o2.frequency.value = f * 2.76; g2.gain.value = 0.22;
+    o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(master);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.9, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
+    o1.start(t); o2.start(t); o1.stop(t + 1.85); o2.stop(t + 1.85);
+  }
+  var PATTERN = {prep: [659.25], start: [523.25, 659.25, 783.99], warn: [783.99, 783.99], end: [783.99, 659.25, 523.25]};
+  function chime(type){
+    var c = run ? run.cfg : cfg;
+    if (!actx || actx.state !== 'running' || c.vol <= 0) return;
+    try {
+      master.gain.value = (c.vol / 100) * 0.5;
+      var t0 = actx.currentTime + 0.05;
+      PATTERN[type].forEach(function(f, i){ bell(t0 + i * 0.42, f); });
+    } catch (e) {}
+  }
+  function buzz(type){
+    if (!(run && run.cfg.vib)) return;
+    try { if (navigator.vibrate) navigator.vibrate(type === 'start' || type === 'end' ? [220, 120, 220] : [160]); } catch (e) {}
+  }
+  function toast(text){
+    var el = $('toast'); el.textContent = text; el.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function(){ el.hidden = true; }, 9000);
+  }
+
+  /* ── 화면 켜 두기 ── */
+  var wakeLock = null;
+  function requestWake(){
+    if (!(run && run.cfg.wake)) return;
+    try { if ('wakeLock' in navigator) navigator.wakeLock.request('screen').then(function(l){ wakeLock = l; }).catch(function(){}); } catch (e) {}
+  }
+  function releaseWake(){ try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch (e) {} }
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible' && run) { requestWake(); tick(); }
+  });
+
+  /* ── 화면 전환 ── */
+  function show(name){
+    $('setup').hidden = name !== 'setup';
+    $('running').hidden = name !== 'running';
+    $('done').hidden = name !== 'done';
+  }
+
+  function renderTimeline(cur){
+    if (cur === lastIdx) return;
+    lastIdx = cur;
+    $('tl').innerHTML = plan.segs.map(function(s, i){
+      var cls = s.kind === 'exam' ? 'exam' : (s.kind === 'brk' ? 'brk' : 'adm');
+      if (cur !== null && cur >= 0) { if (i < cur) cls += ' done'; else if (i === cur) cls += ' now'; }
+      return '<li class="' + cls + '"><span class="t">' + hm(s.s) + '</span><span><b>' + s.label + '</b>' +
+        (s.note ? '<small>' + s.note + '</small>' : '') + '</span><span class="d">' + (s.e - s.s) + '분</span></li>';
+    }).join('');
+  }
+
+  /* ── 설정 ── */
+  function readForm(){
+    var f = $('form');
+    cfg.mode = f.mode.value;
+    cfg.period = +f.period.value;
+    cfg.range = f.range.value;
+    cfg.tamgu = +f.tamgu.value;
+    cfg.vol = +$('vol').value;
+    cfg.wake = $('wake').checked;
+    cfg.vib = $('vib').checked;
+    if (cfg.period === 5 && cfg.mode === 'rehearse') { cfg.p5 = true; } else { cfg.p5 = $('p5').checked; }
+  }
+  function writeForm(){
+    var f = $('form');
+    f.mode.value = cfg.mode; f.period.value = String(cfg.period); f.range.value = cfg.range; f.tamgu.value = String(cfg.tamgu);
+    $('p5').checked = cfg.p5; $('vol').value = cfg.vol; $('wake').checked = cfg.wake; $('vib').checked = cfg.vib;
+  }
+  function updateSetup(){
+    var clock = cfg.mode === 'clock';
+    $('fsPeriod').disabled = clock;
+    $('fsRange').disabled = clock;
+    var lockP5 = !clock && cfg.period === 5;
+    $('p5').checked = cfg.p5; $('p5').disabled = lockP5;
+    plan = buildPlan(cfg);
+    lastIdx = undefined; renderTimeline(null);
+    var btn = $('startBtn'), pv = $('preview'), n = nowMin();
+    btn.disabled = false;
+    if (clock) {
+      if (n >= plan.endV) {
+        btn.disabled = true; btn.textContent = '오늘 수능 시각이 모두 지났어요';
+        pv.textContent = '실제 시각 따라가기는 아침 8시 전에 시작해 보세요. 지금은 리허설을 쓸 수 있어요.';
+      } else {
+        btn.textContent = n < 490 ? '수능 시각에 맞춰 대기하기' : '지금 수능 시각에 맞춰 시작';
+        pv.textContent = '08:40 국어부터 ' + hm(plan.endV) + '까지 실제 시각을 따라가요 · 시험 ' + plan.examMin + '분';
+      }
+    } else {
+      btn.textContent = '5분 뒤 ' + PERIOD[cfg.period] + ' 시작';
+      var endReal = n + (plan.endV - plan.startV);
+      pv.textContent = '지금 시작하면 ' + hm(n + 5) + '에 시작해서 ' + hm(endReal) + (endReal >= 1440 ? '(다음 날)' : '') +
+        '쯤 끝나요 · 시험 ' + plan.examMin + '분';
+    }
+    store();
+  }
+
+  /* ── 실행 ── */
+  function start(){
+    ensureAudio();
+    plan = buildPlan(cfg);
+    run = {mode: cfg.mode, cfg: copy(cfg), anchorReal: Date.now(), anchorVirt: plan.startV, pausedTotal: 0, pausedAt: 0, fired: 0, startedAt: Date.now()};
+    // 이미 지난 종은 건너뛴다. 리허설 시작 시각의 '5분 전' 종은 첫 tick에서 울린다
+    var v = vNow();
+    while (run.fired < plan.ev.length && plan.ev[run.fired].t < v - 0.01) run.fired++;
+    store(); show('running'); requestWake(); begin();
+  }
+  function begin(){
+    lastIdx = undefined;
+    $('pauseBtn').hidden = run.mode === 'clock';
+    clearInterval(timer); timer = setInterval(tick, 250); tick();
+  }
+  function tick(){
+    if (!run) return;
+    var v = vNow();
+    while (run.fired < plan.ev.length && plan.ev[run.fired].t <= v) {
+      var e = plan.ev[run.fired];
+      if (v - e.t < 1.5) { chime(e.type); buzz(e.type); toast(e.text); }
+      run.fired++; store();
+    }
+    var L = locate(v);
+    if (L.st === 'done') { finish(); return; }
+    var s = L.seg, k = $('kind'), c = $('count'), rem, ratio = 0;
+    if (L.st === 'pre') {
+      k.textContent = KIND.pre; k.className = 'kind';
+      $('segName').textContent = s.id === 'pre' ? '입실 완료까지' : s.label + ' 시작까지';
+      $('range').textContent = hm(s.s) + ' 시작';
+      rem = (s.s - v) * 60;
+      $('next').innerHTML = '첫 순서 · <b>' + s.label + '</b> ' + hm(s.s);
+    } else {
+      k.textContent = KIND[s.kind]; k.className = 'kind' + (s.kind === 'exam' ? ' exam' : '');
+      $('segName').textContent = s.label;
+      $('range').textContent = hm(s.s) + ' – ' + hm(s.e) + ' · ' + (s.e - s.s) + '분' + (s.note ? ' · ' + s.note : '');
+      rem = (s.e - v) * 60;
+      ratio = (v - s.s) / (s.e - s.s);
+      var nx = plan.segs[L.i + 1];
+      $('next').innerHTML = nx ? '다음 · <b>' + nx.label + '</b> ' + hm(nx.s) : '마지막 순서예요';
+    }
+    c.textContent = fmt(rem);
+    c.className = 'count' + (L.st === 'in' && s.kind === 'exam' && rem <= 600 ? ' warn' : (L.st === 'pre' || s.kind !== 'exam' ? ' rest' : ''));
+    $('pbar').style.width = Math.max(0, Math.min(1, ratio)) * 100 + '%';
+    $('virt').textContent = (run.mode === 'rehearse' ? '수능 날이라면 지금 ' : '지금 ') + hm(v) + (run.pausedAt ? ' · 멈춤' : '');
+    $('pauseBtn').textContent = run.pausedAt ? '이어서 하기' : '잠깐 멈춤';
+    $('soundBtn').hidden = !!(actx && actx.state === 'running') || run.cfg.vol <= 0;
+    renderTimeline(L.i);
+  }
+  function finish(){
+    var startedAt = new Date(run.startedAt), endV = plan.endV, firstV = plan.segs[0].s;
+    clearInterval(timer); releaseWake();
+    $('sumP').textContent = plan.periods;
+    $('sumM').textContent = plan.examMin;
+    $('sumT').textContent = pad(startedAt.getHours()) + ':' + pad(startedAt.getMinutes());
+    $('doneLede').textContent = (run.mode === 'rehearse' ? '수능 날 ' : '실제 시각으로 ') + hm(firstV) + '부터 ' + hm(endV) +
+      '까지의 흐름을 끝까지 따라갔어요. 시험장에서도 오늘처럼 한 교시씩 넘기면 돼요.';
+    run = null; store();
+    renderTimeline(plan.segs.length);
+    show('done');
+  }
+  function abort(){
+    clearInterval(timer); releaseWake(); run = null; store();
+    show('setup'); updateSetup();
+  }
+
+  /* ── 이벤트 ── */
+  $('form').addEventListener('change', function(){ readForm(); updateSetup(); });
+  $('vol').addEventListener('input', function(){ cfg.vol = +this.value; store(); });
+  $('form').addEventListener('submit', function(e){ e.preventDefault(); readForm(); if (!$('startBtn').disabled) start(); });
+  $('testBell').addEventListener('click', function(){
+    readForm();
+    ensureAudio().then(function(){ chime('start'); });
+  });
+  $('pauseBtn').addEventListener('click', function(){
+    if (!run || run.mode === 'clock') return;
+    if (run.pausedAt) { run.pausedTotal += Date.now() - run.pausedAt; run.pausedAt = 0; }
+    else run.pausedAt = Date.now();
+    store(); tick();
+  });
+  $('soundBtn').addEventListener('click', function(){ ensureAudio().then(tick); });
+  $('stopBtn').addEventListener('click', function(){
+    var b = this;
+    if (Date.now() - stopArm < 3000) { stopArm = 0; b.textContent = '그만하기'; abort(); return; }
+    stopArm = Date.now(); b.textContent = '한 번 더 누르면 그만해요';
+    setTimeout(function(){ if (Date.now() - stopArm >= 3000) b.textContent = '그만하기'; }, 3100);
+  });
+  $('againBtn').addEventListener('click', function(){ show('setup'); updateSetup(); });
+
+  /* ── 사전예약 ── */
+  var pre = $('prereg');
+  if (PREREG_URL) { pre.href = PREREG_URL; pre.target = '_blank'; pre.rel = 'noopener'; }
+  else {
+    pre.removeAttribute('href'); pre.setAttribute('role', 'button'); pre.tabIndex = 0;
+    var tell = function(){ $('preregNote').textContent = 'Play 스토어 사전예약이 열리면 이 버튼으로 바로 연결돼요. 안드로이드 앱 · 2027년 1월 출시 예정'; };
+    pre.addEventListener('click', tell);
+    pre.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tell(); } });
+  }
+
+  /* ── D-day ── */
+  (function(){
+    var t = new Date(); t.setHours(0, 0, 0, 0);
+    var d = Math.round((EXAM - t) / 86400000);
+    $('dday').textContent = d > 0 ? '수능 D-' + d : (d === 0 ? '오늘 수능' : '2027학년도 수능 끝');
+  })();
+
+  /* ── 시작: 진행 중이던 연습 이어 가기 ── */
+  writeForm();
+  if (saved.run) {
+    run = saved.run;
+    cfg = Object.assign(cfg, run.cfg);
+    writeForm();
+    plan = buildPlan(run.cfg);
+    if (vNow() < plan.endV) { show('running'); requestWake(); begin(); }
+    else { run = null; store(); show('setup'); updateSetup(); }
+  } else {
+    show('setup'); updateSetup();
+  }
+  setInterval(function(){ if (!run && !$('setup').hidden) updateSetup(); }, 30000);
+})();
+</script>
+</body>
+</html>
