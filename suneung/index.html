@@ -268,9 +268,19 @@ footer a{color:var(--sub)}
     <p>시간은 한국교육과정평가원 수능 누리집의 <a href="https://www.suneung.re.kr/sub/info.do?m=0101&amp;s=suneung" target="_blank" rel="noopener">시험 시간표</a>(2026-10-15 확인)를 따랐어요. 시험 당일 유의사항과 정확한 시각은 평가원 공지를 따르세요.</p>
     <p>종소리는 열공모드가 만든 차임이에요. 실제 시험장 타종과 소리와 시점이 다를 수 있어요. 영어 듣기 음원은 들어 있지 않아요.</p>
     <p>설정과 진행 상황은 서버로 보내지 않고 이 브라우저에만 저장해요.</p>
+    <p>방문 수와 「출시 알림 받기」 버튼을 누른 횟수만 Google Analytics로 세요. 쿠키는 쓰지 않고, 공부 설정이나 시각은 보내지 않아요.</p>
   </div>
 </footer>
 
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7GT4V5F8QE"></script>
+<script>
+/* 방문 수와 사전예약 버튼 클릭 수만 센다. 쿠키·로컬 저장소 없이(client_storage none), 광고 신호·맞춤 광고는 끈다. */
+window.dataLayer = window.dataLayer || [];
+function gtag(){ dataLayer.push(arguments); }
+gtag('js', new Date());
+gtag('config', 'G-7GT4V5F8QE', { client_storage: 'none', allow_google_signals: false, allow_ad_personalization_signals: false, anonymize_ip: true });
+function track(name){ try { gtag('event', name); } catch (e) {} }
+</script>
 <script>
 (function(){
   'use strict';
@@ -555,7 +565,7 @@ footer a{color:var(--sub)}
   /* ── 이벤트 ── */
   $('form').addEventListener('change', function(){ readForm(); updateSetup(); });
   $('vol').addEventListener('input', function(){ cfg.vol = +this.value; store(); });
-  $('form').addEventListener('submit', function(e){ e.preventDefault(); readForm(); if (!$('startBtn').disabled) start(); });
+  $('form').addEventListener('submit', function(e){ e.preventDefault(); readForm(); if (!$('startBtn').disabled) { track('timer_start'); start(); } });
   $('testBell').addEventListener('click', function(){
     readForm();
     ensureAudio().then(function(){ chime('start'); });
@@ -577,7 +587,7 @@ footer a{color:var(--sub)}
 
   /* ── 사전예약 ── */
   var pre = $('prereg');
-  if (PREREG_URL) { pre.href = PREREG_URL; pre.target = '_blank'; pre.rel = 'noopener'; }
+  if (PREREG_URL) { pre.href = PREREG_URL; pre.target = '_blank'; pre.rel = 'noopener'; pre.addEventListener('click', function(){ track('prereg_click'); }); }
   else {
     pre.removeAttribute('href'); pre.setAttribute('role', 'button'); pre.tabIndex = 0;
     var tell = function(){ $('preregNote').textContent = 'Play 스토어 사전예약이 열리면 이 버튼으로 바로 연결돼요. 안드로이드 앱 · 2027년 1월 출시 예정'; };
