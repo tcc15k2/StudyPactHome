@@ -274,11 +274,12 @@ footer a{color:var(--sub)}
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-7GT4V5F8QE"></script>
 <script>
-/* 방문 수와 사전예약 버튼 클릭 수만 센다. 쿠키·로컬 저장소 없이(storage none), 광고 신호·맞춤 광고는 끈다. */
+/* 방문 수와 사전예약 버튼 클릭 수만 센다. 쿠키·로컬 저장소 없이(analytics_storage 거부, 쿠키 없는 핑), 광고 신호·맞춤 광고는 끈다. */
 window.dataLayer = window.dataLayer || [];
 function gtag(){ dataLayer.push(arguments); }
+gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
 gtag('js', new Date());
-gtag('config', 'G-7GT4V5F8QE', { storage: 'none', allow_google_signals: false, allow_ad_personalization_signals: false });
+gtag('config', 'G-7GT4V5F8QE', { allow_google_signals: false, allow_ad_personalization_signals: false });
 function track(name){ try { gtag('event', name); } catch (e) {} }
 </script>
 <script>
